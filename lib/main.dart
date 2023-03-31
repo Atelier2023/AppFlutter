@@ -1,6 +1,6 @@
+import 'package:app_flutter/signIn.dart';
+import 'package:app_flutter/signUp.dart';
 import 'package:flutter/material.dart';
-import 'connexion.dart';
-import 'inscription.dart';
 
 void main() {
   runApp(const MyApp());
@@ -36,7 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
     void _handleLoginPressed() {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
+        MaterialPageRoute(builder: (context) => SignInPage()),
       );
     }
 

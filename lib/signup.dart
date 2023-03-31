@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:app_flutter/signIn.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -10,15 +13,41 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
 
-  String? _name;
   String? _email;
   String? _password;
+  String? _address;
+  String? _telNumber;
+  String? _nickname;
 
   void _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
-      final httpPackageUrl = Uri.http('localhost:19106', 'users');
-      final httpPackageInfo = await http.read(httpPackageUrl);
-      print(httpPackageInfo);
+      final uri = Uri.parse('http://localhost:19102/users/create');
+      final headers = {'Content-Type': 'application/json'};
+      Map<String, dynamic> body = {
+        "firstname": _nickname!,
+        "email": _email!,
+        "password": _password!,
+        "tel_number": _telNumber!
+      };
+      String jsonBody = json.encode(body);
+      final encoding = Encoding.getByName('utf-8');
+
+      await http.post(
+        uri,
+        headers: headers,
+        body: jsonBody,
+        encoding: encoding,
+      ).then(
+        (response) => {
+          if (response.statusCode == 201) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SignInPage()),
+            )
+          }
+        }).catchError((error) => {
+          print(error)
+        });
     }
   }
 
@@ -37,24 +66,24 @@ class _SignUpPageState extends State<SignUpPage> {
             children: [
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: 'Nom',
+                  labelText: 'Surnom*',
                 ),
                 validator: (value) {
                   if (value?.isEmpty ?? true) {
-                    return 'Veuillez entrer un nom';
+                    return 'Veuillez entrer un surnom';
                   }
                   return null;
                 },
                 onChanged: (value) {
                   setState(() {
-                    _name = value;
+                    _nickname = value;
                   });
                 },
               ),
               SizedBox(height: 16.0),
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: 'Email',
+                  labelText: 'Email*',
                 ),
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
@@ -74,14 +103,14 @@ class _SignUpPageState extends State<SignUpPage> {
               SizedBox(height: 16.0),
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: 'Mot de passe',
+                  labelText: 'Mot de passe*',
                 ),
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Veuillez entrer un mot de passe';
-                  } else if (value.length < 6) {
-                    return 'Le mot de passe doit avoir une longueur de 6 caractères minimum';
+                  } else if (value.length < 8) {
+                    return 'Le mot de passe doit avoir une longueur de 8 caractères minimum';
                   }
 
                   return null;
@@ -89,6 +118,40 @@ class _SignUpPageState extends State<SignUpPage> {
                 onChanged: (value) {
                   setState(() {
                     _password = value;
+                  });
+                },
+              ),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Adresse',
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _address = value;
+                  });
+                },
+              ),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Numéro de téléphone',
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (!value!.isEmpty && !RegExp(r'^[0-9]+$').hasMatch(value)) {
+                    return 'Veuillez entrer un numéro de téléphone valide';
+                  }
+                  if (!value!.isEmpty && value.length < 4) {
+                    return 'Veuillez entrer un numéro de téléphone valide';
+                  }
+                  if (!value!.isEmpty && value.length > 12) {
+                    return 'Veuillez entrer un numéro de téléphone valide';
+                  }
+
+                  return null;
+                },
+                onChanged: (value) {
+                  setState(() {
+                    _telNumber = value;
                   });
                 },
               ),

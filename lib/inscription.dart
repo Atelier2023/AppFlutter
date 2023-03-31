@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -12,12 +14,11 @@ class _SignUpPageState extends State<SignUpPage> {
   String? _email;
   String? _password;
 
-  void _submit() {
+  void _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
-      // Do something with the form data
-      print('Name: $_name');
-      print('Email: $_email');
-      print('Password: $_password');
+      final httpPackageUrl = Uri.http('localhost:19106', 'users');
+      final httpPackageInfo = await http.read(httpPackageUrl);
+      print(httpPackageInfo);
     }
   }
 
@@ -25,7 +26,7 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sign Up'),
+        title: Text("S'inscrire"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -36,11 +37,11 @@ class _SignUpPageState extends State<SignUpPage> {
             children: [
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: 'Name',
+                  labelText: 'Nom',
                 ),
                 validator: (value) {
                   if (value?.isEmpty ?? true) {
-                    return 'Please enter your name';
+                    return 'Veuillez entrer un nom';
                   }
                   return null;
                 },
@@ -58,9 +59,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value?.isEmpty ?? true) {
-                    return 'Please enter your email';
+                    return 'Veuillez entrer un email';
                   } else if (!(value?.contains('@') ?? false)) {
-                    return 'Please enter a valid email address';
+                    return 'Veuillez entrer un email valide';
                   }
                   return null;
                 },
@@ -73,16 +74,17 @@ class _SignUpPageState extends State<SignUpPage> {
               SizedBox(height: 16.0),
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: 'Password',
+                  labelText: 'Mot de passe',
                 ),
                 obscureText: true,
                 validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a password';
-                } else if (value.length < 6) {
-                  return 'Password must be at least 6 characters long';
-                }
-                return null;
+                  if (value == null || value.isEmpty) {
+                    return 'Veuillez entrer un mot de passe';
+                  } else if (value.length < 6) {
+                    return 'Le mot de passe doit avoir une longueur de 6 caractères minimum';
+                  }
+
+                  return null;
                 }, 
                 onChanged: (value) {
                   setState(() {
@@ -93,7 +95,7 @@ class _SignUpPageState extends State<SignUpPage> {
               SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: _submit,
-                child: Text('Sign Up'),
+                child: Text("S'inscrire"),
               ),
             ],
           ),

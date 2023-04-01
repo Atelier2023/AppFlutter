@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:app_flutter/signIn.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 
 
 class SignUpPage extends StatefulWidget {
@@ -19,35 +20,54 @@ class _SignUpPageState extends State<SignUpPage> {
   String? _telNumber;
   String? _nickname;
 
+  Future<bool> _checkEmail() async {
+    final response = await http.post(
+      Uri.parse('http://localhost:19102/users/check-email'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'email': _email
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to get data.');
+    }
+  }
+
   void _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
-      final uri = Uri.parse('http://localhost:19102/users/create');
-      final headers = {'Content-Type': 'application/json'};
-      Map<String, dynamic> body = {
-        "firstname": _nickname!,
-        "email": _email!,
-        "password": _password!,
-        "tel_number": _telNumber!
-      };
-      String jsonBody = json.encode(body);
-      final encoding = Encoding.getByName('utf-8');
-
-      await http.post(
-        uri,
-        headers: headers,
-        body: jsonBody,
-        encoding: encoding,
-      ).then(
-        (response) => {
-          if (response.statusCode == 201) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SignInPage()),
-            )
-          }
-        }).catchError((error) => {
-          print(error)
-        });
+      if (await _checkEmail()) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Adresse mail déjà utilisée !'))
+        );
+      } else {
+        await http.post(
+          Uri.parse('http://localhost:19102/users/create'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(<String, dynamic>{
+            "firstname": _nickname!,
+            "email": _email!,
+            "password": _password!,
+            "tel_number": _telNumber!
+          }),
+        ).then(
+          (response) => {
+            if (response.statusCode == 201) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SignInPage()),
+              )
+            }
+          }).catchError((error) => {
+            print(error)
+          });
+      }
     }
   }
 

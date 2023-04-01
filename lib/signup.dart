@@ -1,10 +1,7 @@
 import 'dart:convert';
-
 import 'package:app_flutter/signIn.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
-
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -40,6 +37,15 @@ class _SignUpPageState extends State<SignUpPage> {
 
   void _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
+      
       if (await _checkEmail()) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Adresse mail déjà utilisée !'))
@@ -56,17 +62,19 @@ class _SignUpPageState extends State<SignUpPage> {
             "password": _password!,
             "tel_number": _telNumber!
           }),
-        ).then(
-          (response) => {
+        ).then((response) => {
             if (response.statusCode == 201) {
-              Navigator.push(
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Utilisateur créé !'))
+              ),
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => SignInPage()),
               )
             }
-          }).catchError((error) => {
-            print(error)
-          });
+        }).catchError((error) => {
+          throw Exception(error)
+        });
       }
     }
   }

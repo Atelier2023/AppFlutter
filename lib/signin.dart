@@ -1,4 +1,9 @@
+import 'package:app_flutter/main.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:localstore/localstore.dart';
+
 
 class SignInPage extends StatefulWidget {
   @override
@@ -10,6 +15,55 @@ class _SignInPageState extends State<SignInPage> {
   String _password = '';
 
   final _formKey = GlobalKey<FormState>();
+  final id = Localstore.instance.collection('store').doc().id;
+
+  void _submit() async {
+    if (_formKey.currentState!.validate()) {
+      String basicAuth = 'Basic ${base64.encode(utf8.encode('$_email:$_password'))}';
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
+
+      await http.post(
+        Uri.parse('http://localhost:19102/users/signin'),
+        headers: <String, String>{'authorization': basicAuth},
+      ).then((response) {
+        if (response.statusCode == 201) {
+          return json.decode(response.body);
+        } else {
+          throw Exception("Echec de connexion.");
+        }
+      }).then((jsonData) {
+        final db = Localstore.instance;
+        db.collection('store').doc(id).set({
+          "authenticated": true,
+          "id": jsonData['id_user'],
+          "email": jsonData['email'],
+          "username": jsonData['user'],
+          "tel_number": jsonData['tel'],
+          "token": jsonData['accesstoken'],
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Vous êtes connecté !'))
+        );
+      }).catchError((error) {
+        print(error);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Une erreur est survenue'))
+        );
+      }).whenComplete(() => Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MyApp()),
+      ));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,11 +119,7 @@ class _SignInPageState extends State<SignInPage> {
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // TODO: Ajouter la logique de connexion ici
-                  }
-                },
+                onPressed: _submit,
                 child: Text('Se connecter'),
               ),
             ],

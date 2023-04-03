@@ -15,7 +15,6 @@ class _SignInPageState extends State<SignInPage> {
   String _password = '';
 
   final _formKey = GlobalKey<FormState>();
-  final id = Localstore.instance.collection('store').doc().id;
 
   void _submit() async {
     if (_formKey.currentState!.validate()) {
@@ -39,9 +38,10 @@ class _SignInPageState extends State<SignInPage> {
         } else {
           throw Exception("Echec de connexion.");
         }
-      }).then((jsonData) {
+      }).then((jsonData) async {
         final db = Localstore.instance;
-        db.collection('store').doc(id).set({
+        
+        await db.collection('store').doc('store').set({
           "authenticated": true,
           "id": jsonData['id_user'],
           "email": jsonData['email'],
@@ -50,6 +50,9 @@ class _SignInPageState extends State<SignInPage> {
           "token": jsonData['accesstoken'],
         });
 
+        final test = await db.collection('store').get();
+
+        print(test);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Vous êtes connecté !'))
         );

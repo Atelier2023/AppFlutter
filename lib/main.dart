@@ -1,9 +1,12 @@
 import 'package:app_flutter/signIn.dart';
 import 'package:app_flutter/signUp.dart';
 import 'package:flutter/material.dart';
+import 'package:localstore/localstore.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  final db = Localstore.instance; 
+
   runApp(MaterialApp(
     home: MyApp(),
   ));
@@ -36,19 +39,49 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-    void _handleLoginPressed() {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => SignInPage()),
-      );
+  final db = Localstore.instance; 
+  late bool authenticated = false;
+
+  void _handleLoginPressed() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SignInPage()),
+    );
+  }
+  void _handleRegisterPressed() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SignUpPage()),
+    );
+  }
+
+  void _handleLogoutPressed() async{
+    await db.collection('store').doc('store').set({"authenticated": false});
+      
+    setState(() {
+      authenticated = false;
+    });
+  }
+
+  void _loadIsLoggedIn() async {
+    final data = await db.collection('store').doc('store').get();
+
+    if (data == null) {
+      authenticated = false;
+    } else {
+      authenticated = data['authenticated'] ? true : false;
     }
 
-    void _handleRegisterPressed() {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => SignUpPage()),
-      );
-    }
+    setState(() {
+      authenticated = authenticated;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadIsLoggedIn();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,14 +94,23 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const SizedBox(height: 20), // Espacement
-            ElevatedButton(
-              onPressed: _handleLoginPressed,
-              child: const Text('Se connecter'),
-            ),
-            ElevatedButton(
-              onPressed: _handleRegisterPressed,
-              child: const Text('S\'inscrire'),
-            ),
+            authenticated
+            ? ElevatedButton(
+                onPressed: _handleLogoutPressed,
+                child: const Text('Se déconnecter'),
+              )
+            : Column(
+                children: [
+                  ElevatedButton(
+                    onPressed: _handleLoginPressed,
+                    child: const Text('Se connecter'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _handleRegisterPressed,
+                    child: const Text('S\'inscrire'),
+                  ),
+                ],
+              ),
           ],
         ),
       ),

@@ -94,7 +94,7 @@ class _SignUpPageState extends State<SignUpPage> {
             children: [
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: 'Surnom*',
+                  labelText: 'Surnom',
                 ),
                 validator: (value) {
                   if (value?.isEmpty ?? true) {
@@ -111,7 +111,7 @@ class _SignUpPageState extends State<SignUpPage> {
               SizedBox(height: 16.0),
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: 'Email*',
+                  labelText: 'Email',
                 ),
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
@@ -131,7 +131,7 @@ class _SignUpPageState extends State<SignUpPage> {
               SizedBox(height: 16.0),
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: 'Mot de passe*',
+                  labelText: 'Mot de passe',
                 ),
                 obscureText: true,
                 validator: (value) {
@@ -146,16 +146,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 onChanged: (value) {
                   setState(() {
                     _password = value;
-                  });
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Adresse',
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _address = value;
                   });
                 },
               ),

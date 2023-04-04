@@ -50,9 +50,6 @@ class _SignInPageState extends State<SignInPage> {
           "token": jsonData['accesstoken'],
         });
 
-        final test = await db.collection('store').get();
-
-        print(test);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Vous êtes connecté !'))
         );

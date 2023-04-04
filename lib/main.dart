@@ -20,19 +20,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'RéunionousApp',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -66,6 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _loadIsLoggedIn() async {
     final data = await db.collection('store').doc('store').get();
 
+    print(data);
     if (data == null) {
       authenticated = false;
     } else {
@@ -86,32 +85,43 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const SizedBox(height: 20), // Espacement
-            authenticated
-            ? ElevatedButton(
-                onPressed: _handleLogoutPressed,
-                child: const Text('Se déconnecter'),
-              )
-            : Column(
-                children: [
-                  ElevatedButton(
-                    onPressed: _handleLoginPressed,
-                    child: const Text('Se connecter'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _handleRegisterPressed,
-                    child: const Text('S\'inscrire'),
-                  ),
-                ],
-              ),
+            const Text('Contenu de votre page'),
           ],
+        ),
+      ),
+      floatingActionButton: Align(
+        alignment: Alignment.topRight,
+        child: Container(
+          margin: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              authenticated
+                  ? ElevatedButton(
+                      onPressed: _handleLogoutPressed,
+                      child: const Text('Se déconnecter'),
+                    )
+                  : Row(
+                    children: [ 
+                      ElevatedButton(
+                        onPressed: _handleLoginPressed,
+                        child: const Text('Se connecter'),
+                      ),
+                      ElevatedButton(
+                        onPressed: _handleRegisterPressed,
+                        child: const Text('S\'inscrire'),
+                      ),
+                    ],
+                  ), 
+              const SizedBox(width: 10.0),
+              
+            ],
+          ),
         ),
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:app_flutter/sharedEvent.dart';
 import 'package:app_flutter/signIn.dart';
 import 'package:app_flutter/signUp.dart';
 import 'package:app_flutter/addEvent.dart';
@@ -6,8 +7,6 @@ import 'package:localstore/localstore.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  final db = Localstore.instance; 
-
   runApp(MaterialApp(
     home: MyApp(),
   ));
@@ -58,6 +57,13 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => AddEventForm()),
+    );
+  }
+
+  void _sharedURL() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SharedEvent()),
     );
   }
 
@@ -113,6 +119,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   ElevatedButton(
                     onPressed: _addEventPressed,
                     child: const Text('Créer un événement'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _sharedURL,
+                    child: const Text('shared URL'),
                   ),
                   const SizedBox(width: 10.0),
                   ElevatedButton(

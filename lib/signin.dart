@@ -13,15 +13,11 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   String _email = '';
   String _password = '';
-  bool _isLoading = false;
 
   final _formKey = GlobalKey<FormState>();
 
   void _submit() async {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
       String basicAuth = 'Basic ${base64.encode(utf8.encode('$_email:$_password'))}';
 
       showDialog(
@@ -43,9 +39,6 @@ class _SignInPageState extends State<SignInPage> {
           throw Exception("Echec de connexion.");
         }
       }).then((jsonData) async {
-        setState(() {
-          _isLoading = false;
-        });
         final db = Localstore.instance;
         
         await db.collection('store').doc('store').set({
@@ -61,9 +54,8 @@ class _SignInPageState extends State<SignInPage> {
           const SnackBar(content: Text('Vous êtes connecté !'))
         );
       }).catchError((error) {
-        print(error);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Une erreur est survenue'))
+          const SnackBar(content: Text('Une erreur est survenue.'))
         );
       }).whenComplete(() => Navigator.pushReplacement(
           context,
@@ -78,10 +70,10 @@ class _SignInPageState extends State<SignInPage> {
       appBar: AppBar(
         title: Text('Connexion'),
       ),
-      body: Stack(
-        children: [
-          Padding(
-          padding: const EdgeInsets.all(16.0),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -132,11 +124,6 @@ class _SignInPageState extends State<SignInPage> {
             ],
           ),
         ),
-        if (_isLoading)
-            Center(
-              child: CircularProgressIndicator(),
-            ),
-        ],
       ),
     );
   }

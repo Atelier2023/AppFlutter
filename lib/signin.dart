@@ -54,9 +54,8 @@ class _SignInPageState extends State<SignInPage> {
           const SnackBar(content: Text('Vous êtes connecté !'))
         );
       }).catchError((error) {
-        print(error);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Une erreur est survenue'))
+          const SnackBar(content: Text('Une erreur est survenue.'))
         );
       }).whenComplete(() => Navigator.pushReplacement(
           context,

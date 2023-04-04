@@ -11,16 +11,50 @@ class AddEventForm extends StatefulWidget {
 
 class _AddEventFormState extends State<AddEventForm> {
   final _formKey = GlobalKey<FormState>();
-  String _title = '';
-  DateTime _date = DateTime.now();
-  String _address = '';
+  String? _title = '';
+  DateTime? _date = DateTime.now();
+  String? _address = '';
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      // Enregistrer les données ici
-      print('Titre : $_title');
-      print('Date : $_date');
-      print('Adresse : $_address');
+  void _submitForm() async {
+
+  final db = Localstore.instance;
+  final storeid = await db.collection('store').doc('store').get();
+  final idUser = storeid!['id'];
+
+    if (_formKey.currentState?.validate() ?? false) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
+        await http.post(
+          Uri.parse('http://localhost:19100/events/create'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(<String, dynamic>{
+            "title": _title!,
+            "date_event": _date?.toIso8601String(),
+            "address": _address!,
+            "id_user": idUser,
+
+          }),
+        ).then((response) => {
+            if (response.statusCode == 201) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Evénement créé !'))
+              ),
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => MyApp()),
+              )
+            }
+        }).catchError((error) => {
+          throw Exception(error)
+        });
     }
   }
 
@@ -58,7 +92,7 @@ class _AddEventFormState extends State<AddEventForm> {
                 onTap: () async {
                   final selectedDate = await showDatePicker(
                     context: context,
-                    initialDate: _date,
+                    initialDate: _date!,
                     firstDate: DateTime(1900),
                     lastDate: DateTime(2100),
                   );
@@ -76,7 +110,7 @@ class _AddEventFormState extends State<AddEventForm> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '${_date.day}/${_date.month}/${_date.year}',
+                        '${_date!.day}/${_date!.month}/${_date!.year}',
                         style: TextStyle(
                           fontSize: 16,
                         ),

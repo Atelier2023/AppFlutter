@@ -71,8 +71,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _loadIsLoggedIn() async {
     final data = await db.collection('store').doc('store').get();
-
-    print(data);
     if (data == null) {
       authenticated = false;
     } else {

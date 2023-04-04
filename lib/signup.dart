@@ -17,6 +17,8 @@ class _SignUpPageState extends State<SignUpPage> {
   String? _telNumber;
   String? _nickname;
 
+  bool _isLoading = false;
+
   Future<bool> _checkEmail() async {
     final response = await http.post(
       Uri.parse('http://localhost:19102/users/check-email'),
@@ -37,15 +39,9 @@ class _SignUpPageState extends State<SignUpPage> {
 
   void _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      );
-      
+      setState(() {
+        _isLoading = true;
+      });
       if (await _checkEmail()) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Adresse mail déjà utilisée !'))
@@ -63,6 +59,9 @@ class _SignUpPageState extends State<SignUpPage> {
             "tel_number": _telNumber!
           }),
         ).then((response) => {
+          setState(() {
+          _isLoading = false;
+        }),
             if (response.statusCode == 201) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Utilisateur créé !'))
@@ -85,10 +84,10 @@ class _SignUpPageState extends State<SignUpPage> {
       appBar: AppBar(
         title: Text("S'inscrire"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
+      body: Stack(
+        children: [
+          Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -181,6 +180,11 @@ class _SignUpPageState extends State<SignUpPage> {
             ],
           ),
         ),
+        if (_isLoading)
+            Center(
+              child: CircularProgressIndicator(),
+            ),
+        ],
       ),
     );
   }

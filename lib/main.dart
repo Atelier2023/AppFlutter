@@ -1,17 +1,15 @@
 import 'dart:convert';
 
+import 'package:app_flutter/sharedEventEmail.dart';
 import 'package:app_flutter/signIn.dart';
 import 'package:app_flutter/signUp.dart';
 import 'package:app_flutter/addEvent.dart';
 import 'package:flutter/material.dart';
 import 'package:localstore/localstore.dart';
 import 'package:http/http.dart' as http;
-import 'package:localstore/localstore.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  final db = Localstore.instance; 
-
   runApp(MaterialApp(
     home: MyApp(),
   ));
@@ -88,14 +86,66 @@ Future<void> _getEvents() async {
     );
   }
 
-  void _addEventPressed() {
+  void _addEventPressed() async {
+    final data = await db.collection('store').doc('store').get();
+
+    var refresh_token;
+    await http.get(
+      Uri.parse('http://localhost:19106/users/validate'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ' + data!["token"],
+      }).then(
+        (response) => {
+          if (response.statusCode == 200) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AddEventForm()),
+            )
+          },
+        (error) => {
+          if (error.response.statusCode == 401) {
+            http.get(
+              Uri.parse('http://localhost:19106/users/getRefresh/' + data!["id"]),
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            }).then((response) => {
+              refresh_token = jsonDecode(response.body)['refresh_token'],
+
+              http.post(
+                Uri.parse('http://localhost:19106/users/refresh'),
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json',
+                  'Authorization': 'Bearer ' + refresh_token,
+                }).then((response) => {
+                  db.collection('store').doc('store').set({
+                    "token": jsonDecode(response.body)['accesstoken']
+                  }),
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AddEventForm()),
+                  )
+                }).catchError((error) => {
+                  print(error)
+                }) 
+            })
+          }
+        }
+      });
+  }
+
+  void _sharedURL() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => AddEventForm()),
+      MaterialPageRoute(builder: (context) => const SharedEventEmail()),
     );
   }
 
-  void _handleLogoutPressed() async{
+  void _handleLogoutPressed() async {
     await db.collection('store').doc('store').set({"authenticated": false});
       
     setState(() {
@@ -160,7 +210,7 @@ Future<void> _getEvents() async {
           }).toList(),
         ),
       ) 
-      : const Text('Contenu de votre page'),
+      : const Text('Veuillez vous connecter'),
     ],
   ),
 ),
@@ -169,11 +219,17 @@ Future<void> _getEvents() async {
         child: Container(
           margin: const EdgeInsets.all(16.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+                ElevatedButton(
+                  onPressed: _sharedURL,
+                  child: const Text('shared URL'),
+              ),
+
               authenticated
             ? Row(
                 children: [
+                  const SizedBox(width: 10.0),
                   ElevatedButton(
                     onPressed: _addEventPressed,
                     child: const Text('Créer un événement'),
@@ -187,10 +243,12 @@ Future<void> _getEvents() async {
               )
                   : Row(
                     children: [ 
+                      const SizedBox(width: 10.0),
                       ElevatedButton(
                         onPressed: _handleLoginPressed,
                         child: const Text('Se connecter'),
                       ),
+                      const SizedBox(width: 10.0),
                       ElevatedButton(
                         onPressed: _handleRegisterPressed,
                         child: const Text('S\'inscrire'),

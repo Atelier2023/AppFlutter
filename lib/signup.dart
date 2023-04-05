@@ -19,7 +19,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   Future<bool> _checkEmail() async {
     final response = await http.post(
-      Uri.parse('http://localhost:19102/users/check-email'),
+      Uri.parse('http://localhost:19106/users/check-email'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -52,7 +52,7 @@ class _SignUpPageState extends State<SignUpPage> {
         );
       } else {
         await http.post(
-          Uri.parse('http://localhost:19102/users/create'),
+          Uri.parse('http://localhost:19106/users/create'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },

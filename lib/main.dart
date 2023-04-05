@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:app_flutter/signIn.dart';
 import 'package:app_flutter/signUp.dart';
 import 'package:app_flutter/addEvent.dart';
 import 'package:flutter/material.dart';
+import 'package:localstore/localstore.dart';
+import 'package:http/http.dart' as http;
 import 'package:localstore/localstore.dart';
 
 void main() {
@@ -41,6 +45,33 @@ class _MyHomePageState extends State<MyHomePage> {
   final db = Localstore.instance; 
   late bool authenticated = false;
 
+    List<String> events = [
+  ];
+
+Future<void> _getEvents() async {
+
+  final db = Localstore.instance;
+  final storeid = await db.collection('store').doc('store').get();
+  final idUser = storeid!['id'];
+  
+
+    try {
+      final response = await http.get(Uri.parse('http://localhost:19106/events/getEvent/${idUser}'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          });
+      if (response.statusCode == 200) {
+        setState(() {
+         events = List<String>.from(json.decode(response.body).map((x) => x.toString()));
+        });
+      } else {
+        throw Exception('Failed to load events');
+      }
+    } catch (e) {
+      print('Error loading events: $e');
+    }
+  }
+
   void _handleLoginPressed() {
     Navigator.push(
       context,
@@ -71,6 +102,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _loadIsLoggedIn() async {
     final data = await db.collection('store').doc('store').get();
+
+    print(data);
     if (data == null) {
       authenticated = false;
     } else {
@@ -82,10 +115,12 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+
   @override
   void initState() {
     super.initState();
     _loadIsLoggedIn();
+    _getEvents();
   }
 
   @override
@@ -96,7 +131,18 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const SizedBox(height: 20), // Espacement
-            const Text('Contenu de votre page'),
+            authenticated 
+            ? Expanded(
+                child: ListView.builder(
+                  itemCount: events.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(events[index]),
+                    );
+                  },
+                ),
+              ) 
+            : const Text('Contenu de votre page'),
           ],
         ),
       ),

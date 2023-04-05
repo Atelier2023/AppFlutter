@@ -14,7 +14,7 @@ class SharedEvent extends StatefulWidget {
 class _SharedEventState extends State<SharedEvent> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  String url = 'bn1U6JP_1';
+  String url = 'hG6K4ilj1';
 
   String? _name;
   String? _firstname;
@@ -44,7 +44,7 @@ class _SharedEventState extends State<SharedEvent> {
                   "name": _name,
                   "firstname": _firstname,
                   "tel_number": _telNumber,
-                  "state": _selected,
+                  "state": _selected.toString().split('.').last,
                   "id_event": jsonDecode(response.body)['id_event']
                 }),
               ),

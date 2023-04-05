@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:app_flutter/sharedEvent.dart';
 import 'package:app_flutter/signIn.dart';
 import 'package:app_flutter/signUp.dart';
 import 'package:app_flutter/addEvent.dart';
 import 'package:flutter/material.dart';
 import 'package:localstore/localstore.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,11 +56,56 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _addEventPressed() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => AddEventForm()),
-    );
+  void _addEventPressed() async {
+    final data = await db.collection('store').doc('store').get();
+
+    var refresh_token;
+    await http.get(
+      Uri.parse('http://localhost:19102/users/validate'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ' + data!["token"],
+      }).then(
+        (response) => {
+          if (response.statusCode == 200) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AddEventForm()),
+            )
+          },
+        (error) => {
+          if (error.response.statusCode == 401) {
+            http.get(
+              Uri.parse('http://localhost:19102/users/getRefresh/' + data!["id"]),
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            }).then((response) => {
+              refresh_token = jsonDecode(response.body)['refresh_token'],
+              print(refresh_token),
+              http.post(
+                Uri.parse('http://localhost:19102/users/refresh'),
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json',
+                  'Authorization': 'Bearer ' + refresh_token,
+                }).then((response) => {
+                  db.collection('store').doc('store').set({
+                    "token": jsonDecode(response.body)['accesstoken']
+                  }),
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AddEventForm()),
+                  )
+                }).catchError((error) => {
+                  print(error)
+                }) 
+            })
+          }
+        }
+      });
   }
 
   void _sharedURL() {
@@ -67,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _handleLogoutPressed() async{
+  void _handleLogoutPressed() async {
     await db.collection('store').doc('store').set({"authenticated": false});
       
     setState(() {

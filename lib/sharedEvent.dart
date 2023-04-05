@@ -38,8 +38,6 @@ class _SharedEventState extends State<SharedEvent> {
           },
         )
         .then((response) => {
-          print(_comment),
-
               http.put(
                 Uri.parse('http://localhost:19100/participants/update/' + widget.idParticipant.toString()),
                 headers: <String, String>{
@@ -54,7 +52,7 @@ class _SharedEventState extends State<SharedEvent> {
                   "id_event": jsonDecode(response.body)['id_event']
                 }),
               ).then((response) => {
-                // print(response.body),
+                print(response.body),
                 if (response.statusCode == 200) {
                   setState(() {
                     _isLoading = false;
@@ -185,6 +183,6 @@ class _SharedEventState extends State<SharedEvent> {
 }
 
 enum Selection {
-  present,
-  missing,
+  vient,
+  ne_vient_pas,
 }

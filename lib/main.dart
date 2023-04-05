@@ -84,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 'Accept': 'application/json',
             }).then((response) => {
               refresh_token = jsonDecode(response.body)['refresh_token'],
-              print(refresh_token),
+
               http.post(
                 Uri.parse('http://localhost:19102/users/refresh'),
                 headers: {
@@ -162,17 +162,18 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+                ElevatedButton(
+                  onPressed: _sharedURL,
+                  child: const Text('shared URL'),
+              ),
+
               authenticated
             ? Row(
                 children: [
+                  const SizedBox(width: 10.0),
                   ElevatedButton(
                     onPressed: _addEventPressed,
                     child: const Text('Créer un événement'),
-                  ),
-                  const SizedBox(width: 10.0),
-                  ElevatedButton(
-                    onPressed: _sharedURL,
-                    child: const Text('shared URL'),
                   ),
                   const SizedBox(width: 10.0),
                   ElevatedButton(
@@ -183,10 +184,12 @@ class _MyHomePageState extends State<MyHomePage> {
               )
                   : Row(
                     children: [ 
+                      const SizedBox(width: 10.0),
                       ElevatedButton(
                         onPressed: _handleLoginPressed,
                         child: const Text('Se connecter'),
                       ),
+                      const SizedBox(width: 10.0),
                       ElevatedButton(
                         onPressed: _handleRegisterPressed,
                         child: const Text('S\'inscrire'),

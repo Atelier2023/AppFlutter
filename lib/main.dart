@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:app_flutter/sharedEvent.dart';
+import 'package:app_flutter/sharedEventEmail.dart';
 import 'package:app_flutter/signIn.dart';
 import 'package:app_flutter/signUp.dart';
 import 'package:app_flutter/addEvent.dart';
@@ -111,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _sharedURL() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const SharedEvent()),
+      MaterialPageRoute(builder: (context) => const SharedEventEmail()),
     );
   }
 
@@ -159,7 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Container(
           margin: const EdgeInsets.all(16.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               authenticated
             ? Row(
@@ -168,6 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: _addEventPressed,
                     child: const Text('Créer un événement'),
                   ),
+                  const SizedBox(width: 10.0),
                   ElevatedButton(
                     onPressed: _sharedURL,
                     child: const Text('shared URL'),

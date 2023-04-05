@@ -26,7 +26,7 @@ class _SharedEventEmailState extends State<SharedEventEmail> {
       });
 
       await http.post(
-        Uri.parse('http://localhost:19106/participants/get/email'),
+        Uri.parse('http://localhost:19100/participants/get/email'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8'},
         body: jsonEncode(<String, dynamic>{
@@ -39,7 +39,7 @@ class _SharedEventEmailState extends State<SharedEventEmail> {
       });
 
       await http.post(
-        Uri.parse('http://localhost:19106/events/shared/email'),
+        Uri.parse('http://localhost:19100/events/shared/email'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8'},
         body: jsonEncode(<String, dynamic>{

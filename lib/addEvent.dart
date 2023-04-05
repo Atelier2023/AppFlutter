@@ -22,16 +22,8 @@ class _AddEventFormState extends State<AddEventForm> {
   final idUser = storeid!['id'];
 
     if (_formKey.currentState?.validate() ?? false) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      );
         await http.post(
-          Uri.parse('http://localhost:19106/events/create'),
+          Uri.parse('http://localhost:19100/events/create'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },

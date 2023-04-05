@@ -19,7 +19,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   Future<bool> _checkEmail() async {
     final response = await http.post(
-      Uri.parse('http://localhost:19106/users/check-email'),
+      Uri.parse('http://localhost:19102/users/check-email'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -36,23 +36,14 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   void _submit() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      );
-      
+    if (_formKey.currentState?.validate() ?? false) {    
       if (await _checkEmail()) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Adresse mail déjà utilisée !'))
         );
       } else {
         await http.post(
-          Uri.parse('http://localhost:19106/users/create'),
+          Uri.parse('http://localhost:19102/users/create'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },

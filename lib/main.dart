@@ -42,12 +42,10 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final db = Localstore.instance; 
   late bool authenticated = false;
-
-    List<String> events = [
-  ];
+  
+  List<String> events = [];
 
 Future<void> _getEvents() async {
-
   final db = Localstore.instance;
   final storeid = await db.collection('store').doc('store').get();
   final idUser = storeid!['id'];
@@ -91,7 +89,7 @@ Future<void> _getEvents() async {
 
     var refresh_token;
     await http.get(
-      Uri.parse('http://localhost:19106/users/validate'),
+      Uri.parse('http://localhost:19102/users/validate'),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -107,7 +105,7 @@ Future<void> _getEvents() async {
         (error) => {
           if (error.response.statusCode == 401) {
             http.get(
-              Uri.parse('http://localhost:19106/users/getRefresh/' + data!["id"]),
+              Uri.parse('http://localhost:19102/users/getRefresh/' + data!["id"]),
               headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
@@ -115,7 +113,7 @@ Future<void> _getEvents() async {
               refresh_token = jsonDecode(response.body)['refresh_token'],
 
               http.post(
-                Uri.parse('http://localhost:19106/users/refresh'),
+                Uri.parse('http://localhost:19102/users/refresh'),
                 headers: {
                   'Content-Type': 'application/json',
                   'Accept': 'application/json',
@@ -124,7 +122,6 @@ Future<void> _getEvents() async {
                   db.collection('store').doc('store').set({
                     "token": jsonDecode(response.body)['accesstoken']
                   }),
-
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => AddEventForm()),
@@ -155,8 +152,6 @@ Future<void> _getEvents() async {
 
   void _loadIsLoggedIn() async {
     final data = await db.collection('store').doc('store').get();
-
-    print(data);
     if (data == null) {
       authenticated = false;
     } else {
@@ -224,10 +219,10 @@ Future<void> _getEvents() async {
                 ElevatedButton(
                   onPressed: _sharedURL,
                   child: const Text('shared URL'),
-              ),
+                ),
 
               authenticated
-            ? Row(
+              ? Row(
                 children: [
                   const SizedBox(width: 10.0),
                   ElevatedButton(

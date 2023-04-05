@@ -32,14 +32,14 @@ class _SharedEventState extends State<SharedEvent> {
 
       await http
         .get(
-          Uri.parse('http://localhost:19106/events/shared/' + widget.sharedUrl),
+          Uri.parse('http://localhost:19100/events/shared/' + widget.sharedUrl),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
         )
         .then((response) => {
               http.put(
-                Uri.parse('http://localhost:19106/participants/update/' + widget.idParticipant.toString()),
+                Uri.parse('http://localhost:19100/participants/update/' + widget.idParticipant.toString()),
                 headers: <String, String>{
                   'Content-Type': 'application/json; charset=UTF-8',
                 },

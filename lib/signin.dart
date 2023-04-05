@@ -20,17 +20,8 @@ class _SignInPageState extends State<SignInPage> {
     if (_formKey.currentState!.validate()) {
       String basicAuth = 'Basic ${base64.encode(utf8.encode('$_email:$_password'))}';
 
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      );
-
       await http.post(
-        Uri.parse('http://localhost:19106/users/signin'),
+        Uri.parse('http://localhost:19102/users/signin'),
         headers: <String, String>{'authorization': basicAuth},
       ).then((response) {
         if (response.statusCode == 201) {

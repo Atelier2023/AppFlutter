@@ -56,13 +56,16 @@ Future<void> _getEvents() async {
   
 
     try {
-      final response = await http.get(Uri.parse('http://localhost:19106/events/getEvent/${idUser}'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          });
+      final response = await http.get(
+        Uri.parse('http://localhost:19106/events/getEvent/${idUser}'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
       if (response.statusCode == 200) {
+        final data = json.decode(response.body);
         setState(() {
-         events = List<String>.from(json.decode(response.body).map((x) => x.toString()));
+          events = List<String>.from(data.map((x) => '${x['title']} - ${x['date_event']} - ${x['address']} - ${x['is_before']} - ${x['is_after']} - ${x['state']} - ${x['shared_url']}' as String));
         });
       } else {
         throw Exception('Failed to load events');
@@ -127,25 +130,40 @@ Future<void> _getEvents() async {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const SizedBox(height: 20), // Espacement
-            authenticated 
-            ? Expanded(
-                child: ListView.builder(
-                  itemCount: events.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(events[index]),
-                    );
-                  },
-                ),
-              ) 
-            : const Text('Contenu de votre page'),
+  child: Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: <Widget>[
+      const SizedBox(height: 20), // Espacement
+      authenticated 
+      ? Expanded(
+        child: DataTable(
+          columns: const [
+            DataColumn(label: Text('Titre')),
+            DataColumn(label: Text('Date')),
+            DataColumn(label: Text('Adresse')),
+            DataColumn(label: Text('Avant')),
+            DataColumn(label: Text('Après')),
+            DataColumn(label: Text('Statut')),
+            DataColumn(label: Text('Lien de partage')),
           ],
+          rows: events.map((event) {
+            final eventFields = event.split(' - ');
+            return DataRow(cells: [
+              DataCell(Text(eventFields[0])),
+              DataCell(Text(eventFields[1])),
+              DataCell(Text(eventFields[2])),
+              DataCell(Text(eventFields[3])),
+              DataCell(Text(eventFields[4])),
+              DataCell(Text(eventFields[5])),
+              DataCell(Text(eventFields[6])),
+            ]);
+          }).toList(),
         ),
-      ),
+      ) 
+      : const Text('Contenu de votre page'),
+    ],
+  ),
+),
       floatingActionButton: Align(
         alignment: Alignment.topRight,
         child: Container(

@@ -89,19 +89,32 @@ class _AddEventFormState extends State<AddEventForm> {
               ),
               SizedBox(height: 16),
               InkWell(
-                onTap: () async {
-                  final selectedDate = await showDatePicker(
+                
+              onTap: () async {
+                final selectedDate = await showDatePicker(
+                  context: context,
+                  initialDate: _date!,
+                  firstDate: DateTime(1900),
+                  lastDate: DateTime(2100),
+                );
+                if (selectedDate != null) {
+                  final selectedTime = await showTimePicker(
                     context: context,
-                    initialDate: _date!,
-                    firstDate: DateTime(1900),
-                    lastDate: DateTime(2100),
+                    initialTime: TimeOfDay.fromDateTime(_date!),
                   );
-                  if (selectedDate != null) {
+                  if (selectedTime != null) {
                     setState(() {
-                      _date = selectedDate;
+                      _date = DateTime(
+                        selectedDate.year,
+                        selectedDate.month,
+                        selectedDate.day,
+                        selectedTime.hour,
+                        selectedTime.minute,
+                      );
                     });
                   }
-                },
+                }
+              },
                 child: InputDecorator(
                   decoration: InputDecoration(
                     labelText: 'Date',
